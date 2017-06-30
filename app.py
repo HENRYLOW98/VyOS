@@ -44,7 +44,7 @@ def readethdesc():
 		abort(404)
 
 @app.route('/ethdesc', methods=['POST'])
-
+@auth.login_required
 def createethdesc():
 	if not request.json or not 'ethname' in request.json or not 'ethdesc' in request.json:
 		abort(400)
@@ -75,7 +75,7 @@ def createethdesc():
 		abort(404)
 
 @app.route('/ethdesc', methods=['DELETE'])
-
+@auth.login_required
 def deleteethdesc():
 	if not request.json or not 'ethname' in request.json:
 		abort(400)
@@ -106,7 +106,7 @@ def deleteethdesc():
 		abort(404)
 
 @app.route('/ethdesc', methods=['PUT'])
-
+@auth.login_required
 def updateethdesc():
 	if not request.json or not 'ethname' in request.json or not 'ethdesc' in request.json:
 		abort(400)
@@ -139,7 +139,7 @@ def updateethdesc():
 		abort(404)
 
 @app.route('/readruledefault', methods=['POST'])
-
+@auth.login_required
 def readruledefault():
 	if not request.json or not 'firename' in request.json:
 		abort(400)
@@ -162,7 +162,7 @@ def readruledefault():
 		abort(404)
 
 @app.route('/ruledefault', methods=['POST'])
-
+@auth.login_required
 def createruledefault():
 	if not request.json or not 'firename' in request.json or not 'fireact' in request.json:
 		abort(400)
@@ -196,7 +196,7 @@ def createruledefault():
 		abort(400)
 
 @app.route('/ruledefault', methods=['DELETE'])
-
+@auth.login_required
 def deleteruledefault():
 	if not request.json or not 'firename' in request.json:
 		abort(400)
@@ -227,7 +227,7 @@ def deleteruledefault():
 		abort(400)
 
 @app.route('/ruledefault', methods=['PUT'])
-
+@auth.login_required
 def updateruledefault():
 	if not request.json or not 'firename' in request.json or not 'fireact' in request.json:
 		abort(400)
