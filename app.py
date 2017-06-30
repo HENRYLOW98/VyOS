@@ -261,7 +261,175 @@ def updateruledefault():
 			abort(400)
 	else:
 		abort(400)
+@app.route('/readethfire', methods=['POST'])
+@auth.login_required
+def readethfire():
+	if not request.json or not 'ethname' in request.json or not 'conntype' in request.json:
+		abort(400)
+	if request.json['conntype'] == "in" or request.json['conntype'] == "out" or request.json['conntype'] == "local":
+	        query = "show interface ethernet " + request.json['ethname'] + " firewall " + request.json['conntype']
+        	vyos.login()
+		vyos.configure()
+		out = vyos.run_conf_mode_command(query)
+		vyos.exit()
+		vyos.logout()
+		outstr = str(out)
+		namelen = len(request.json['ethname'])
+		connlen = len(request.json['conntype'])
+		checkstart = 46 + namelen + connlen
+		checkend = 50 + namelen + connlen
+		checkname = outstr[checkstart:checkend]
+		outstart = 51 + namelen + connlen
+		if checkname == "name":
+			outname = outstr[outstart:-34]
+			return jsonify({'rule-sets name': outname})
+		else:
+			abort(400)
+	else:
+		abort(400)
 
+@app.route('/ethfire', methods=['POST'])
+@auth.login_required
+def createethfire():
+	if not request.json or not 'ethname' in request.json or not 'conntype' in request.json or not 'firename' in request.json:
+		abort(400)
+	if request.json['conntype'] == "in" or request.json['conntype'] == "out" or request.json['conntype'] == "local":
+	        query = "interface ethernet " + request.json['ethname'] + " firewall " + request.json['conntype'] + " name " + request.json['firename']
+		firequery = "show firewall name " + request.json['firename'] + " default-action"
+		checkquery = "show interface ethernet " + request.json['ethname'] + " firewall " + request.json['conntype']
+		vyos.login()
+		vyos.configure()
+		out = vyos.run_conf_mode_command(firequery)
+		vyos.exit()
+		vyos.logout()
+		outstr = str(out)
+		namelen = len(request.json['firename'])
+		checkstart = 46 + namelen
+		checkend = 60 + namelen
+		check = outstr[checkstart:checkend]
+		if check == "default-action":
+			vyos.login()
+			vyos.configure()
+			out = vyos.run_conf_mode_command(checkquery)
+			vyos.exit()
+			vyos.logout()
+			outstr = str(out)
+			namelen = len(request.json['ethname'])
+			connlen = len(request.json['conntype'])
+			checkstart = 46 + namelen + connlen
+			checkend = 50 + namelen + connlen
+			checkname = outstr[checkstart:checkend]
+			outstart = 51 + namelen + connlen
+			if checkname == "name":
+				return jsonify({'error': 'firewall rule-sets already exist on this interface'})
+			elif checkname == "onfi":
+		        	vyos.login()
+				vyos.configure()
+				vyos.set(query)
+				vyos.commit()
+				vyos.save()
+				vyos.exit()
+				vyos.logout()
+				return jsonify({'success': 'firewall rule-sets has been successfully created'})
+			else:
+				abort(400)
+		elif check == "onfiguration u":
+			return jsonify({'error': 'firewall default-action does not exist'})
+		else:
+			abort(400)
+	else:
+		abort(400)
+
+@app.route('/ethfire', methods=['DELETE'])
+@auth.login_required
+def deleteethfire():
+	if not request.json or not 'ethname' in request.json or not 'conntype' in request.json:
+		abort(400)
+	if request.json['conntype'] == "in" or request.json['conntype'] == "out" or request.json['conntype'] == "local":
+	        query = "interface ethernet " + request.json['ethname'] + " firewall " + request.json['conntype']
+		checkquery = "show interface ethernet " + request.json['ethname'] + " firewall " + request.json['conntype']
+		vyos.login()
+		vyos.configure()
+		out = vyos.run_conf_mode_command(checkquery)
+		vyos.exit()
+		vyos.logout()
+		outstr = str(out)
+		namelen = len(request.json['ethname'])
+		connlen = len(request.json['conntype'])
+		checkstart = 46 + namelen + connlen
+		checkend = 50 + namelen + connlen
+		checkname = outstr[checkstart:checkend]
+		outstart = 51 + namelen + connlen
+		if checkname == "name":
+	        	vyos.login()
+			vyos.configure()
+			vyos.delete(query)
+			vyos.commit()
+			vyos.save()
+			vyos.exit()
+			vyos.logout()
+			return jsonify({'success': 'firewall rule-sets has been successfully deleted'})
+		elif checkname == "onfi":
+			return jsonify({'error': 'firewall rule-sets does not exist on this interface'})
+		else:
+			abort(400)
+	else:
+		abort(400)
+
+@app.route('/ethfire', methods=['PUT'])
+@auth.login_required
+def updateethfire():
+	if not request.json or not 'ethname' in request.json or not 'conntype' in request.json or not 'firename' in request.json:
+		abort(400)
+	if request.json['conntype'] == "in" or request.json['conntype'] == "out" or request.json['conntype'] == "local":
+	        query = "interface ethernet " + request.json['ethname'] + " firewall " + request.json['conntype'] + " name " + request.json['firename']
+		deletequery = "interface ethernet " + request.json['ethname'] + " firewall " + request.json['conntype']
+		firequery = "show firewall name " + request.json['firename'] + " default-action"
+		checkquery = "show interface ethernet " + request.json['ethname'] + " firewall " + request.json['conntype']
+		vyos.login()
+		vyos.configure()
+		out = vyos.run_conf_mode_command(firequery)
+		vyos.exit()
+		vyos.logout()
+		outstr = str(out)
+		namelen = len(request.json['firename'])
+		checkstart = 46 + namelen
+		checkend = 60 + namelen
+		check = outstr[checkstart:checkend]
+		if check == "default-action":
+			vyos.login()
+			vyos.configure()
+			out = vyos.run_conf_mode_command(checkquery)
+			vyos.exit()
+			vyos.logout()
+			outstr = str(out)
+			namelen = len(request.json['ethname'])
+			connlen = len(request.json['conntype'])
+			checkstart = 46 + namelen + connlen
+			checkend = 50 + namelen + connlen
+			checkname = outstr[checkstart:checkend]
+			outstart = 51 + namelen + connlen
+			if checkname == "name":
+		        	vyos.login()
+				vyos.configure()
+				vyos.delete(deletequery)
+				vyos.set(query)
+				vyos.commit()
+				vyos.save()
+				vyos.exit()
+				vyos.logout()
+				return jsonify({'success': 'firewall rule-sets has been successfully updated'})
+			elif checkname == "onfi":
+				return jsonify({'error': 'firewall rule-sets does not exist on this interface'})
+			else:
+				abort(400)
+		elif check == "onfiguration u":
+			return jsonify({'error': 'firewall default-action does not exist'})
+		else:
+			abort(400)
+	else:
+		abort(400)
+		
 @auth.error_handler
 def auth_error():
 	return make_response(jsonify({'error': '401 Unauthorised Access'}), 401)
